@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>성인 일상생활 사건 재구성 & 5대 의문사 탐구실</title>
+  <meta name="description" content="성인 일상 장소별 5단계 사건 그림 드래그 앤 드롭 순서 맞추기 및 5대 의문사 퀴즈 웹 애플리케이션">
+  <style>
+    /* ==========================================================================
+       1. 디자인 토큰 및 고대비 성인 친화적 테마 (Design Tokens)
+       ========================================================================== */
+    :root {
+      --font-main: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+      
+      /* 성인 친화적이고 눈이 편안한 슬레이트/인디고 고대비 팔레트 */
+      --bg-body: #F4F7FB;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #EDF3FC;
+      --border-color: #CAD7E8;
+      --border-focus: #2563EB;
+      
+      --text-main: #0F172A;
+      --text-sub: #334155;
+      --text-muted: #64748B;
+      
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --primary-border: #93C5FD;
+
+      --accent: #4F46E5;
+      --accent-soft: #EEF2FF;
+
+      --success: #15803D;
+      --success-bg: #F0FDF4;
+      --success-border: #86EFAC;
+
+      --warning: #C2410C;
+      --warning-bg: #FFF7ED;
+      --warning-border: #FDBA74;
+
+      /* 5대 의문사 고대비 유색 배지 */
+      --wh-who-text: #1D4ED8;
+      --wh-who-bg: #EFF6FF;
+      --wh-who-border: #93C5FD;
+
+      --wh-where-text: #15803D;
+      --wh-where-bg: #F0FDF4;
+      --wh-where-border: #86EFAC;
+
+      --wh-what-text: #C2410C;
+      --wh-what-bg: #FFF7ED;
+      --wh-what-border: #FDBA74;
+
+      --wh-why-text: #7E22CE;
+      --wh-why-bg: #FAF5FF;
+      --wh-why-border: #D8B4FE;
+
+      --wh-how-text: #BE123C;
+      --wh-how-bg: #FFF1F2;
+      --wh-how-border: #FDA4AF;
+
+      /* 폰트 크기: 본문 최소 22px 이상 */
+      --fs-sm: 18px;
+      --fs-base: 22px;
+      --fs-lg: 26px;
+      --fs-xl: 32px;
+      --fs-title: 38px;
+
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 12px 28px rgba(37, 99, 235, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-main);
+      font-size: var(--fs-base);
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. 상단 헤더
+       ========================================================================== */
+    .app-header {
+      background-color: var(--bg-card);
+      border-bottom: 3px solid var(--border-color);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+    }
+
+    .brand-icon {
+      font-size: 36px;
+      background: var(--primary-soft);
+      width: 58px;
+      height: 58px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--primary-border);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: var(--fs-lg);
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 10px 22px;
+      font-size: var(--fs-sm);
+      font-weight: 800;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 50px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: #E2ECF9;
+      border-color: var(--border-focus);
+      transform: translateY(-2px);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       3. 버튼 및 공통 인터랙션 요소
+       ========================================================================== */
+    button {
+      font-family: inherit;
+      border: none;
+      outline: none;
+      touch-action: manipulation;
+    }
+
+    button:focus-visible {
+      outline: 4px solid var(--primary);
+      outline-offset: 3px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: var(--fs-base);
+      font-weight: 900;
+      padding: 18px 36px;
+      min-height: 68px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      border: 3px solid #1D4ED8;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      border: 3px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-subtle);
+      border-color: var(--border-focus);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
+      color: #FFFFFF;
+      border: 3px solid #3730A3;
+    }
+
+    .btn-accent:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn-xl {
+      font-size: var(--fs-lg);
+      padding: 20px 42px;
+      min-height: 76px;
+      border-radius: var(--radius-lg);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* 음성 듣기 전용 큰 버튼 */
+    .btn-voice {
+      background: #15803D;
+      color: #FFFFFF;
+      border: 3px solid #166534;
+      padding: 14px 26px;
+      font-size: var(--fs-base);
+      font-weight: 900;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 60px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-voice:hover {
+      background: #166534;
+      transform: translateY(-2px);
+    }
+
+    .btn-voice.speaking {
+      background: #DC2626 !important;
+      border-color: #991B1B !important;
+      animation: pulseSpeaking 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulseSpeaking {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+      50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+    }
+
+    /* 5대 의문사 배지 */
+    .wh-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      font-size: var(--fs-sm);
+      font-weight: 900;
+      border: 3px solid transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .wh-badge.who {
+      background-color: var(--wh-who-bg);
+      color: var(--wh-who-text);
+      border-color: var(--wh-who-border);
+    }
+
+    .wh-badge.where {
+      background-color: var(--wh-where-bg);
+      color: var(--wh-where-text);
+      border-color: var(--wh-where-border);
+    }
+
+    .wh-badge.what {
+      background-color: var(--wh-what-bg);
+      color: var(--wh-what-text);
+      border-color: var(--wh-what-border);
+    }
+
+    .wh-badge.why {
+      background-color: var(--wh-why-bg);
+      color: var(--wh-why-text);
+      border-color: var(--wh-why-border);
+    }
+
+    .wh-badge.how, .wh-badge.when {
+      background-color: var(--wh-how-bg);
+      color: var(--wh-how-text);
+      border-color: var(--wh-how-border);
+    }
+
+    /* 상단 안내 바 */
+    .stage-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      padding: 16px 24px;
+      border-radius: var(--radius-lg);
+      border: 3px solid var(--border-color);
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .stage-title-box {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stage-pill {
+      background: var(--primary);
+      color: #fff;
+      padding: 6px 18px;
+      border-radius: var(--radius-full);
+      font-size: var(--fs-sm);
+      font-weight: 900;
+    }
+
+    .stage-location-title {
+      font-size: var(--fs-lg);
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       4. [화면 1] 메인 화면: 성인 일상 12가지 장소 타일
+       ========================================================================== */
+    .hero-banner {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .hero-title {
+      font-size: var(--fs-title);
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .hero-sub {
+      font-size: var(--fs-base);
+      color: var(--text-sub);
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .random-start-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .locations-grid-12 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .location-tile-card {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .location-tile-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      background-color: #F8FAFD;
+    }
+
+    .location-tile-card:active {
+      transform: translateY(0);
+    }
+
+    .tile-symbol {
+      font-size: 58px;
+      width: 96px;
+      height: 96px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--border-color);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .tile-name {
+      font-size: var(--fs-lg);
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .tile-desc {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+
+    .tile-badge-tag {
+      background: var(--primary-soft);
+      color: var(--primary-hover);
+      font-size: 15px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--primary-border);
+      margin-top: auto;
+    }
+
+    /* ==========================================================================
+       5. [화면 2] 1단계: 마우스 드래그 앤 드롭 5단계 그림 순서 맞추기
+       ========================================================================== */
+    .drag-guide-box {
+      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+      border: 3px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+    }
+
+    .drag-guide-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .drag-guide-icon {
+      font-size: 40px;
+      flex-shrink: 0;
+    }
+
+    .drag-guide-text {
+      font-size: var(--fs-base);
+      font-weight: 900;
+      color: var(--primary-hover);
+    }
+
+    /* 드롭 대상 슬롯 그리드 (1번 ~ 5번) */
+    .drop-slots-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1040px) {
+      .drop-slots-grid-5 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 680px) {
+      .drop-slots-grid-5 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .drop-slot {
+      background: var(--bg-card);
+      border: 3px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.22s ease;
+      text-align: center;
+    }
+
+    /* 마우스 드래그 오버 시 시각적 하이라이트 */
+    .drop-slot.drag-over {
+      border-color: #2563EB !important;
+      background-color: #EFF6FF !important;
+      transform: scale(1.03);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .drop-slot.has-card {
+      border-style: solid;
+      border-color: var(--primary);
+      background-color: #FFFFFF;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+    }
+
+    .drop-slot.has-card:hover {
+      border-color: #EF4444;
+      background-color: #FEF2F2;
+    }
+
+    .drop-slot.has-card:hover::after {
+      content: "✕ 다시 빼기 (클릭)";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #DC2626;
+      background: #FEE2E2;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid #F87171;
+    }
+
+    .slot-label-num {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--bg-subtle);
+      color: var(--text-sub);
+      font-size: 16px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--border-color);
+    }
+
+    .drop-slot.has-card .slot-label-num {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .slot-empty-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .slot-empty-icon {
+      font-size: 40px;
+      opacity: 0.6;
+    }
+
+    .slot-empty-text {
+      font-size: var(--fs-sm);
+      font-weight: 800;
+    }
+
+    /* 슬롯 안에 놓여진 그림 카드 내용 */
+    .slot-content-body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 28px;
+      gap: 10px;
+    }
+
+    .slot-emoji {
+      font-size: 58px;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.08));
+    }
+
+    .slot-keyword {
+      font-size: var(--fs-base);
+      font-weight: 900;
+      color: var(--primary-hover);
+      background: var(--primary-soft);
+      padding: 4px 14px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--primary-border);
+    }
+
+    .slot-text {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    /* 하단 드래그 대기 카드 풀 */
+    .pool-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pool-heading {
+      font-size: var(--fs-lg);
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cards-pool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    /* 마우스로 끌 수 있는 대형 그림 카드 (draggable) */
+    .draggable-card {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      cursor: grab;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
+      min-height: 220px;
+      position: relative;
+    }
+
+    .draggable-card:active {
+      cursor: grabbing;
+    }
+
+    .draggable-card:hover:not(.placed) {
+      border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      background-color: var(--primary-soft);
+    }
+
+    .draggable-card.dragging {
+      opacity: 0.45;
+      transform: scale(0.95);
+      border-style: dashed;
+      border-color: var(--primary);
+    }
+
+    .draggable-card.placed {
+      opacity: 0.3;
+      background-color: var(--bg-subtle);
+      border-style: dashed;
+      border-color: var(--border-color);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .card-drag-emoji {
+      font-size: 64px;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.1));
+      transition: transform 0.2s ease;
+    }
+
+    .draggable-card:hover:not(.placed) .card-drag-emoji {
+      transform: scale(1.1);
+    }
+
+    .card-drag-keyword {
+      font-size: var(--fs-sm);
+      font-weight: 900;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 4px 14px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--primary-border);
+    }
+
+    .card-drag-text {
+      font-size: var(--fs-base);
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    .card-hint-drag {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    /* 피드백 배너 */
+    .status-alert {
+      display: none;
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      align-items: center;
+      gap: 18px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .status-alert.show {
+      display: flex;
+    }
+
+    .status-alert.error {
+      background-color: var(--warning-bg);
+      border: 3px solid var(--warning-border);
+      color: var(--warning);
+      animation: shakeAlert 0.4s ease;
+    }
+
+    .status-alert.success {
+      background-color: var(--success-bg);
+      border: 3px solid var(--success-border);
+      color: var(--success);
+    }
+
+    @keyframes shakeAlert {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .alert-symbol {
+      font-size: 44px;
+      flex-shrink: 0;
+    }
+
+    .step1-action-bar {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
+       6. [화면 3] 2단계: 5대 의문사 퀴즈 (상황당 5문제)
+       ========================================================================== */
+    .story-recap-gallery {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 26px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .gallery-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .gallery-title {
+      font-size: var(--fs-sm);
+      font-weight: 900;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gallery-track-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    @media (max-width: 900px) {
+      .gallery-track-5 {
+        grid-template-columns: repeat(5, minmax(160px, 1fr));
+      }
+    }
+
+    .mini-cut {
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+    }
+
+    .cut-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .cut-symbol {
+      font-size: 36px;
+    }
+
+    .cut-name {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    /* 의문사 퀴즈 카드 */
+    .quiz-card {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 34px 28px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+    }
+
+    .quiz-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-question-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .quiz-symbol-icon {
+      font-size: 50px;
+      width: 74px;
+      height: 74px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .quiz-question-text {
+      font-size: var(--fs-xl);
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    /* 선택지 버튼 목록 */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .option-btn {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 24px;
+      font-size: var(--fs-lg);
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      min-height: 82px;
+      text-align: left;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background-color: var(--primary-soft);
+      transform: translateX(6px);
+    }
+
+    .option-btn.correct {
+      border-color: var(--success);
+      background-color: var(--success-bg);
+      color: var(--success);
+      box-shadow: 0 0 0 4px var(--success-border);
+    }
+
+    .option-btn.wrong {
+      border-color: var(--warning);
+      background-color: var(--warning-bg);
+      color: var(--warning);
+      animation: shakeAlert 0.4s ease;
+    }
+
+    .opt-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .opt-emoji {
+      font-size: 42px;
+      flex-shrink: 0;
+    }
+
+    .quiz-feedback-box {
+      margin-top: 24px;
+      padding: 22px;
+      border-radius: var(--radius-md);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-feedback-box.show {
+      display: flex;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .quiz-feedback-box.correct {
+      background: var(--success-bg);
+      border: 2px solid var(--success-border);
+      color: var(--success);
+    }
+
+    .quiz-feedback-box.wrong {
+      background: var(--warning-bg);
+      border: 2px solid var(--warning-border);
+      color: var(--warning);
+    }
+
+    /* ==========================================================================
+       7. [화면 4] 학습 완료 및 성취 화면
+       ========================================================================== */
+    .result-panel {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 44px 32px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .trophy-badge {
+      font-size: 86px;
+      margin-bottom: 14px;
+      display: inline-block;
+      animation: pulseTrophy 1.6s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulseTrophy {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-10px) scale(1.1); }
+    }
+
+    .result-heading {
+      font-size: var(--fs-title);
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .result-sub {
+      font-size: var(--fs-lg);
+      color: var(--text-sub);
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+
+    .storybook-album {
+      background: #FFFFFF;
+      border: 3px solid #D6E4F8;
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      margin: 0 auto 36px;
+      max-width: 980px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .album-heading {
+      font-size: var(--fs-xl);
+      font-weight: 900;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 3px solid var(--primary-border);
+      padding-bottom: 16px;
+    }
+
+    .album-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .album-grid-5 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .album-cut-card {
+      background: var(--bg-subtle);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .album-cut-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      padding: 3px 12px;
+      border-radius: var(--radius-full);
+    }
+
+    .album-cut-emoji {
+      font-size: 58px;
+    }
+
+    .album-cut-keyword {
+      font-size: var(--fs-sm);
+      font-weight: 900;
+      color: var(--text-main);
+      background: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border-color);
+    }
+
+    .album-cut-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-sub);
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    .result-actions-bar {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* 토스트 알림 */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 16px 32px;
+      border-radius: var(--radius-full);
+      font-size: var(--fs-base);
+      font-weight: 900;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast-popup.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 공통 상단 네비게이션 헤더 -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-wrap" onclick="app.goHome()" title="처음 화면으로">
+        <div class="brand-icon" aria-hidden="true">🏙️</div>
+        <div>
+          <h1 class="brand-title">성인 일상생활 사건 재구성 & 5대 의문사 탐구실</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="nav-btn" onclick="app.stopAllSpeech()" aria-label="음성 멈추기">
+          <span>⏹️</span>
+          <span>소리 멈추기</span>
+        </button>
+        <button type="button" class="nav-btn" onclick="app.goHome()" aria-label="장소 목록으로">
+          <span>🏠</span>
+          <span>장소 목록</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 작업 영역 -->
+  <main>
+    <!-- ====================================================================
+         1. 메인 화면: 성인 일상 12가지 장소 선택
+         ==================================================================== -->
+    <section id="screenHome" class="screen active" aria-labelledby="homeHeading">
+      <div class="hero-banner">
+        <h2 id="homeHeading" class="hero-title">어떤 일상 장소를 경험해 볼까요?</h2>
+        <p class="hero-sub">성인이 일상에서 자주 방문하는 다양한 장소의 사건을 순서대로 맞추고, 5대 의문사 질문을 풀어보세요!</p>
+        
+        <div class="random-start-wrap">
+          <button type="button" class="btn btn-accent btn-xl" onclick="app.startRandomLocation()">
+            <span style="font-size: 32px;">🎲</span>
+            <span>오늘의 무작위 일상 시작하기</span>
+            <span>👉</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 12가지 성인 일상 장소 타일 그리드 -->
+      <div class="locations-grid-12" id="locationsGrid" role="list">
+        <!-- JS로 12개 장소 렌더링 -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         2. 학습 1단계: 마우스 드래그 앤 드롭 5단계 사건 순서 맞추기
+         ==================================================================== -->
+    <section id="screenStep1" class="screen" aria-labelledby="step1StoryTitle">
+      <!-- 진행 바 -->
+      <div class="stage-bar">
+        <div class="stage-title-box">
+          <span class="stage-pill">1단계 : 그림 순서 맞추기</span>
+          <span class="stage-location-title" id="step1StoryTitle">장소 이름</span>
+        </div>
+      </div>
+
+      <!-- 마우스 드래그 앤 드롭 안내 & 전체 이야기 듣기 배너 -->
+      <div class="drag-guide-box">
+        <div class="drag-guide-left">
+          <span class="drag-guide-icon">🖐️</span>
+          <div class="drag-guide-text">
+            아래 그림 카드를 마우스로 <strong>1번부터 5번 칸에 끌어다 놓아(드래그)</strong> 순서를 맞춰보세요! (클릭해도 이동합니다)
+          </div>
+        </div>
+        <button type="button" class="btn-voice" id="btnFullStoryVoice" onclick="app.toggleFullStorySpeech()">
+          <span id="btnFullStoryIcon" style="font-size: 26px;">🎧</span>
+          <span id="btnFullStoryText">전체 이야기 들어보기</span>
+        </button>
+      </div>
+
+      <!-- 5개 드롭 타겟 슬롯 영역 (1번 ~ 5번) -->
+      <div class="drop-slots-grid-5" id="dropSlotsGrid" role="region" aria-label="1번부터 5번 순서 슬롯">
+        <!-- JS로 5개 슬롯 렌더링 -->
+      </div>
+
+      <!-- 정답 / 오답 알림 피드백 배너 -->
+      <div class="status-alert" id="step1Feedback" role="alert">
+        <div class="alert-symbol" id="step1FeedbackIcon">💬</div>
+        <div style="flex: 1;">
+          <div style="font-size: var(--fs-lg); font-weight: 900; margin-bottom: 4px;" id="step1FeedbackTitle">어떤 일이 먼저 일어났을까요?</div>
+          <div style="font-size: var(--fs-base); font-weight: 800;" id="step1FeedbackDesc">그림을 다시 차근차근 봐요! 슬롯의 카드를 누르면 다시 뺄 수 있어요.</div>
+        </div>
+      </div>
+
+      <!-- 하단 드래그 대기 카드 목록 -->
+      <div class="pool-header-row">
+        <h3 class="pool-heading">
+          <span>👇 마우스로 잡고 끌어당길 사건 그림 카드</span>
+        </h3>
+      </div>
+      <div class="cards-pool-grid" id="cardsPoolGrid" role="list">
+        <!-- JS로 섞인 5개 드래그 카드 렌더링 -->
+      </div>
+
+      <!-- 액션 버튼 바 -->
+      <div class="step1-action-bar" id="step1ActionsBar">
+        <button type="button" class="btn btn-secondary" onclick="app.resetStep1()" id="btnResetStep1">
+          <span>🔄</span>
+          <span>처음부터 다시 놓기</span>
+        </button>
+        <button type="button" class="btn btn-primary btn-xl" onclick="app.checkStep1Order()" id="btnCheckStep1" disabled>
+          <span>✨</span>
+          <span>순서 확인하기</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         3. 학습 2단계: 5대 의문사 질문 (장소당 5문제)
+         ==================================================================== -->
+    <section id="screenStep2" class="screen" aria-labelledby="step2StoryTitle">
+      <!-- 진행 바 -->
+      <div class="stage-bar">
+        <div class="stage-title-box">
+          <span class="stage-pill">2단계 : 5대 의문사 질문</span>
+          <span class="stage-location-title" id="step2StoryTitle">장소 이름</span>
+          <span class="wh-badge who" id="step2ProgressBadge">질문 1 / 5</span>
+        </div>
+      </div>
+
+      <!-- 완성된 5단계 이야기 상시 요약 갤러리 -->
+      <div class="story-recap-gallery">
+        <div class="gallery-title-row">
+          <span class="gallery-title">
+            <span>🖼️</span>
+            <span>방금 맞춘 5단계 이야기 순서 보기</span>
+          </span>
+          <button type="button" class="nav-btn" onclick="app.speakFullStorySequence()" style="min-height: 42px; padding: 6px 16px; font-size: 16px;">
+            <span>🎧 전체 다시 듣기</span>
+          </button>
+        </div>
+        <div class="gallery-track-5" id="galleryTrack5">
+          <!-- JS로 5컷 렌더링 -->
+        </div>
+      </div>
+
+      <!-- 퀴즈 카드 -->
+      <div class="quiz-card" role="region" aria-label="의문사 퀴즈">
+        <div class="quiz-header">
+          <span class="wh-badge who" id="whBadge">👤 누가</span>
+          <button type="button" class="btn-voice" id="btnQuizVoice" onclick="app.speakCurrentQuizQuestion()">
+            <span id="btnQuizVoiceIcon" style="font-size: 26px;">🔊</span>
+            <span id="btnQuizVoiceText">질문 듣기</span>
+          </button>
+        </div>
+
+        <div class="quiz-question-row">
+          <div class="quiz-symbol-icon" id="quizSymbolIcon">👤</div>
+          <h3 class="quiz-question-text" id="quizQuestionText">질문 내용</h3>
+        </div>
+
+        <!-- 3개 선택지 버튼 목록 -->
+        <div class="options-list" id="optionsList" role="radiogroup">
+          <!-- JS로 선택지 렌더링 -->
+        </div>
+
+        <!-- 정답 / 오답 피드백 영역 -->
+        <div class="quiz-feedback-box" id="quizFeedbackBox">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <span style="font-size: 42px;" id="quizFeedbackIcon">👏</span>
+            <div>
+              <div style="font-size: var(--fs-lg); font-weight: 900;" id="quizFeedbackTitle">정답입니다! 아주 잘 찾았어요!</div>
+              <div style="font-size: var(--fs-base); font-weight: 800;" id="quizFeedbackSub">해설 내용</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-xl" id="btnNextQuiz" onclick="app.handleNextQuiz()" style="min-height: 64px; padding: 14px 32px;">
+            <span>다음 질문 풀기 👉</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         4. 학습 완료 및 성취 화면
+         ==================================================================== -->
+    <section id="screenResult" class="screen" aria-labelledby="resultHeading">
+      <div class="result-panel">
+        <div class="trophy-badge" aria-hidden="true">🏆</div>
+        <h2 id="resultHeading" class="result-heading">오늘의 일상 탐구를 멋지게 완성했어요!</h2>
+        <p class="result-sub">5단계 그림 순서도 마우스로 잘 맞추고, 5대 의문사 질문도 모두 바르게 찾으셨어요.</p>
+
+        <!-- 완성된 그림 앨범 -->
+        <div class="storybook-album">
+          <div class="album-heading">
+            <span>📖</span>
+            <span id="recapAlbumTitle">완성된 일상 이야기</span>
+          </div>
+
+          <div class="album-grid-5" id="albumGrid5">
+            <!-- JS로 5컷 렌더링 -->
+          </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="result-actions-bar">
+          <button type="button" class="btn btn-secondary btn-xl" onclick="app.replayCurrentLocation()" style="max-width: 340px;">
+            <span>🔄</span>
+            <span>이 장소 다시 하기</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-xl" onclick="app.goHome()" style="max-width: 360px;">
+            <span>🏠</span>
+            <span>다른 장소 선택하기</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 가벼운 안내 토스트 -->
+  <div id="toastPopup" class="toast-popup" role="status" aria-live="polite">
+    <span id="toastIcon">✨</span>
+    <span id="toastText">안내 메시지</span>
+  </div>
+
+  <!-- ==========================================================================
+       자바스크립트 로직 (12가지 성인 일상 장소 & 마우스 드래그 앤 드롭 & 음성 제어)
+       ========================================================================== */ -->
+  <script>
+    /* ==========================================================================
+       1. 성인이 일상에서 경험하는 12가지 장소별 5단계 사건 & 5대 의문사 데이터
+       ========================================================================== */
+    const ADULT_LOCATIONS_DATA = [
+      {
+        id: "mart",
+        title: "마트 / 편의점",
+        icon: "🛒",
+        desc: "지갑을 들고 장을 보며 바구니에 담고 계산하는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "😋", keyword: "배고픔", text: "출출한 오후가 되어서 간식을 먹고 싶었어요." },
+          { stepIndex: 1, emoji: "👛", keyword: "지갑 챙기기", text: "민수는 지갑을 챙겨서 가까운 마트로 걸어갔어요." },
+          { stepIndex: 2, emoji: "🍎", keyword: "바구니 담기", text: "과자 코너에서 사과와 맛있는 우유를 바구니에 담았어요." },
+          { stepIndex: 3, emoji: "💳", keyword: "카드 계산", text: "계산대로 가서 직원에게 돈을 내고 계산을 마쳤어요." },
+          { stepIndex: 4, emoji: "🏠", keyword: "간식 먹기", text: "집에 돌아와 간식을 맛있게 먹으며 기분 좋게 쉬었어요." }
+        ],
+        quizzes: [
+          { question: "누구에 관한 이야기인가요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🦁", label: "사자" }, { emoji: "🤖", label: "로봇" }], correctAnswer: 0, explanation: "민수가 간식을 사러 마트에 간 이야기예요." },
+          { question: "어디로 물건을 사러 갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🏊", label: "수영장" }, { emoji: "🛒", label: "마트" }, { emoji: "🚔", label: "경찰서" }], correctAnswer: 1, explanation: "간식을 사기 위해 가까운 마트로 갔어요." },
+          { question: "바구니에 무엇을 담았나요?", wh: "무엇을", whType: "what", symbol: "🍎", options: [{ emoji: "👟", label: "신발과 옷" }, { emoji: "✏️", label: "연필과 공책" }, { emoji: "🍎", label: "사과와 우유" }], correctAnswer: 2, explanation: "과자 코너에서 사과와 맛있는 우유를 담았어요." },
+          { question: "왜 마트에 가기로 했나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "😋", label: "간식이 먹고 싶어서" }, { emoji: "😴", label: "잠을 자려고" }, { emoji: "🧹", label: "청소를 하려고" }], correctAnswer: 0, explanation: "출출한 오후가 되어 간식을 먹고 싶어서 갔어요." },
+          { question: "어떻게 계산을 했나요?", wh: "어떻게", whType: "how", symbol: "💳", options: [{ emoji: "🎤", label: "노래를 불렀어요" }, { emoji: "💳", label: "직원에게 돈을 내고 계산했어요" }, { emoji: "🎨", label: "그림을 그려서 바꿨어요" }], correctAnswer: 1, explanation: "계산대에서 직원에게 돈을 내고 바르게 계산을 마쳤어요." }
+        ]
+      },
+      {
+        id: "cafe",
+        title: "카페",
+        icon: "☕",
+        desc: "더운 날 카페에서 음료를 주문하고 진동벨을 받아 대기하는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "☀️", keyword: "목마름", text: "무더운 여름날 밖을 걸으니 목이 많이 말랐어요." },
+          { stepIndex: 1, emoji: "🏬", keyword: "카페 들어가기", text: "시원한 음료를 마시기 위해 시원한 카페로 들어갔어요." },
+          { stepIndex: 2, emoji: "🧃", keyword: "주문하기", text: "카운터로 가서 직원에게 얼음이 든 주스를 주문했어요." },
+          { stepIndex: 3, emoji: "📟", keyword: "진동벨 대기", text: "돈을 내고 진동벨이 울릴 때까지 편안한 의자에 앉아 기다렸어요." },
+          { stepIndex: 4, emoji: "🍹", keyword: "시원하게 마시기", text: "음료가 나오자 받아와서 시원하게 마시며 갈증을 해소했어요." }
+        ],
+        quizzes: [
+          { question: "누가 시원한 카페에 들어갔나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🐯", label: "호랑이" }, { emoji: "🚀", label: "우주선" }], correctAnswer: 0, explanation: "목이 마른 민수가 카페에 들어갔어요." },
+          { question: "어디로 들어갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "📚", label: "서점" }, { emoji: "☕", label: "카페" }, { emoji: "💈", label: "미용실" }], correctAnswer: 1, explanation: "음료를 주문할 수 있는 카페로 들어갔어요." },
+          { question: "카운터에서 무엇을 주문했나요?", wh: "무엇을", whType: "what", symbol: "🍹", options: [{ emoji: "🍜", label: "뜨거운 라면" }, { emoji: "🚗", label: "장난감" }, { emoji: "🍹", label: "얼음이 든 주스" }], correctAnswer: 2, explanation: "시원한 얼음이 든 주스를 주문했어요." },
+          { question: "왜 카페에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "☀️", label: "목이 말라서 시원한 음료를 마시려고" }, { emoji: "👕", label: "옷을 사려고" }, { emoji: "🏃", label: "운동을 하려고" }], correctAnswer: 0, explanation: "무더운 날 목이 말라 시원한 음료를 마시러 갔어요." },
+          { question: "음료를 어떻게 받아왔나요?", wh: "어떻게", whType: "how", symbol: "📟", options: [{ emoji: "📟", label: "진동벨이 울린 후 받아왔어요" }, { emoji: "📢", label: "소리를 지르며 기다렸어요" }, { emoji: "🚪", label: "그냥 나갔어요" }], correctAnswer: 0, explanation: "진동벨이 지잉 울린 후 카운터에서 음료를 받아왔어요." }
+        ]
+      },
+      {
+        id: "bus",
+        title: "버스 정류장 / 지하철",
+        icon: "🚌",
+        desc: "약속 장소에 가기 위해 정류장에서 버스를 타고 방송을 듣고 내리는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🤝", keyword: "친구 약속", text: "친구를 만나기 위해 약속 장소로 가야 했어요." },
+          { stepIndex: 1, emoji: "🚏", keyword: "정류장 대기", text: "정류장으로 걸어가 버스가 오기를 기다렸어요." },
+          { stepIndex: 2, emoji: "💳", keyword: "교통카드 찍기", text: "버스가 오자 카드를 단말기에 대고 탔어요." },
+          { stepIndex: 3, emoji: "🎧", keyword: "안내방송 듣기", text: "의자에 앉아 창밖을 보며 안내방송에 귀를 기울였어요." },
+          { stepIndex: 4, emoji: "🔔", keyword: "벨 누르고 하차", text: "내릴 정류장이 나오자 알림 벨을 누르고 안전하게 내렸어요." }
+        ],
+        quizzes: [
+          { question: "누가 친구를 만나러 버스를 탔나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🐻", label: "곰" }, { emoji: "🚂", label: "기차" }], correctAnswer: 0, explanation: "민수가 약속 장소에 가기 위해 버스를 탔어요." },
+          { question: "어디서 버스를 기다렸나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🍱", label: "식당" }, { emoji: "🚏", label: "정류장" }, { emoji: "🛏️", label: "침대" }], correctAnswer: 1, explanation: "버스는 정류장에서 기다렸어요." },
+          { question: "버스를 타며 단말기에 무엇을 대었나요?", wh: "무엇을", whType: "what", symbol: "💳", options: [{ emoji: "📦", label: "종이 상자" }, { emoji: "👓", label: "안경" }, { emoji: "💳", label: "교통카드" }], correctAnswer: 2, explanation: "단말기에 교통카드를 바르게 찍었어요." },
+          { question: "왜 버스를 타려고 했나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "🤝", label: "친구를 만나러 가려고" }, { emoji: "😴", label: "잠을 자려고" }, { emoji: "🧼", label: "세수를 하려고" }], correctAnswer: 0, explanation: "친구를 만나러 약속 장소로 이동하기 위해서예요." },
+          { question: "내릴 때를 어떻게 알아챘나요?", wh: "어떻게", whType: "how", symbol: "🎧", options: [{ emoji: "🎧", label: "안내방송을 듣고 알아챘어요" }, { emoji: "⏰", label: "시계를 보고 알아챘어요" }, { emoji: "📖", label: "책을 읽고 알아챘어요" }], correctAnswer: 0, explanation: "안내방송에 귀를 기울여 확인했어요." }
+        ]
+      },
+      {
+        id: "hospital",
+        title: "동네 의원 / 병원",
+        icon: "🏥",
+        desc: "목이 아파서 병원에 가서 의사 선생님께 진찰받고 처방전을 받는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🤒", keyword: "목 통증", text: "아침에 일어났는데 기침이 나고 목이 아팠어요." },
+          { stepIndex: 1, emoji: "🏥", keyword: "병원 가기", text: "아픈 몸을 치료하기 위해 동네 의원 병원으로 갔어요." },
+          { stepIndex: 2, emoji: "👨‍⚕️", keyword: "의사 진찰", text: "진찰실에 들어가 의사 선생님께 아픈 곳을 설명했어요." },
+          { stepIndex: 3, emoji: "📝", keyword: "처방전 받기", text: "처방전을 받고 옆에 있는 약국으로 이동했어요." },
+          { stepIndex: 4, emoji: "💊", keyword: "약 먹고 휴식", text: "약사에게 약을 받아 집에서 먹고 따뜻하게 휴식을 취했어요." }
+        ],
+        quizzes: [
+          { question: "누구에게 진찰을 받았나요?", wh: "누구에게", whType: "who", symbol: "👤", options: [{ emoji: "👨‍⚕️", label: "의사 선생님" }, { emoji: "👨‍🍳", label: "요리사" }, { emoji: "🚒", label: "소방관" }], correctAnswer: 0, explanation: "진찰실에서 의사 선생님께 진료를 받았어요." },
+          { question: "아픈 몸을 치료하러 어디로 갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "📮", label: "우체국" }, { emoji: "🏥", label: "병원" }, { emoji: "🏦", label: "은행" }], correctAnswer: 1, explanation: "치료를 위해 동네 병원에 갔어요." },
+          { question: "진찰을 받은 후 무엇을 받았나요?", wh: "무엇을", whType: "what", symbol: "📝", options: [{ emoji: "🎨", label: "그림책" }, { emoji: "🍪", label: "과자 선물" }, { emoji: "📝", label: "처방전" }], correctAnswer: 2, explanation: "약국에 가져갈 처방전을 받았어요." },
+          { question: "왜 병원에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "🤒", label: "기침이 나고 목이 아파서" }, { emoji: "🎬", label: "영화를 보려고" }, { emoji: "🍞", label: "빵을 사려고" }], correctAnswer: 0, explanation: "아침에 기침이 나고 목이 아파서 치료하러 갔어요." },
+          { question: "집에 와서 어떻게 쉬었나요?", wh: "어떻게", whType: "how", symbol: "💊", options: [{ emoji: "💊", label: "약을 먹고 따뜻하게 쉬었어요" }, { emoji: "🏃", label: "운동장을 달렸어요" }, { emoji: "🏊", label: "수영장에 갔어요" }], correctAnswer: 0, explanation: "처방받은 약을 먹고 따뜻하게 쉬었어요." }
+        ]
+      },
+      {
+        id: "pharmacy",
+        title: "약국",
+        icon: "💊",
+        desc: "병원에서 받은 처방전으로 약사에게 약을 타고 복약 설명을 듣는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🏥", keyword: "처방전 지참", text: "병원 진료가 끝난 후 손에 처방전을 꼭 쥐었어요." },
+          { stepIndex: 1, emoji: "💊", keyword: "약국 입장", text: "병원 바로 옆에 위치한 약국 안으로 들어갔어요." },
+          { stepIndex: 2, emoji: "📄", keyword: "처방전 제출", text: "접수대에 처방전을 제출하고 잠시 의자에 앉아 기다렸어요." },
+          { stepIndex: 3, emoji: "👩‍🔬", keyword: "복약 설명", text: "약사 선생님에게 식후에 약을 먹으라는 설명을 들었어요." },
+          { stepIndex: 4, emoji: "🛍️", keyword: "약 봉투 수령", text: "약 봉투를 소중히 가방에 넣고 안전하게 집으로 향했어요." }
+        ],
+        quizzes: [
+          { question: "누구에게 복약 설명을 들었나요?", wh: "누구에게", whType: "who", symbol: "👤", options: [{ emoji: "👩‍🔬", label: "약사 선생님" }, { emoji: "👮", label: "경찰관" }, { emoji: "🚌", label: "버스 기사님" }], correctAnswer: 0, explanation: "약국에서 약사 선생님께 약 먹는 법을 들었어요." },
+          { question: "처방전을 내러 어디로 들어갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🌸", label: "꽃집" }, { emoji: "💊", label: "약국" }, { emoji: "🏊", label: "수영장" }], correctAnswer: 1, explanation: "약을 받기 위해 약국으로 들어갔어요." },
+          { question: "접수대에 무엇을 제출했나요?", wh: "무엇을", whType: "what", symbol: "📄", options: [{ emoji: "👟", label: "운동화" }, { emoji: "🍎", label: "사과" }, { emoji: "📄", label: "처방전" }], correctAnswer: 2, explanation: "병원에서 받은 처방전을 제출했어요." },
+          { question: "왜 약국에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "💊", label: "병원 처방 약을 지으려고" }, { emoji: "🍦", label: "아이스크림을 먹으려고" }, { emoji: "⚽", label: "축구를 하려고" }], correctAnswer: 0, explanation: "아픈 곳을 낫게 할 처방 약을 타기 위해 갔어요." },
+          { question: "약을 언제 먹으라는 설명을 들었나요?", wh: "언제", whType: "when", symbol: "⏰", options: [{ emoji: "🍚", label: "밥을 먹은 후에" }, { emoji: "😴", label: "잠자기 직전에만" }, { emoji: "🏃", label: "달리기를 하면서" }], correctAnswer: 0, explanation: "식사 후(식후)에 약을 챙겨 먹으라고 설명해 주셨어요." }
+        ]
+      },
+      {
+        id: "laundromat",
+        title: "코인빨래방 / 세탁실",
+        icon: "🧺",
+        desc: "더러워진 빨랫감을 세탁기에 넣고 세제와 동전을 넣어 세탁하는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "👕", keyword: "빨랫감 모으기", text: "입었던 옷들에 땀과 먼지가 묻어 바구니에 모았어요." },
+          { stepIndex: 1, emoji: "🧺", keyword: "빨래방 이동", text: "빨래 바구니를 들고 동네 빨래방으로 이동했어요." },
+          { stepIndex: 2, emoji: "🧼", keyword: "세제와 빨래 투입", text: "세탁기 문을 열고 옷과 세제를 바르게 넣었어요." },
+          { stepIndex: 3, emoji: "🪙", keyword: "동전 넣고 시작", text: "동전을 넣고 시작 버튼을 누르자 통이 빙글빙글 돌았어요." },
+          { stepIndex: 4, emoji: "✨", keyword: "뽀송한 옷 수령", text: "건조까지 마친 뽀송뽀송한 옷을 개어 바구니에 담아왔어요." }
+        ],
+        quizzes: [
+          { question: "누가 빨래 바구니를 들고 이동했나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🐱", label: "고양이" }, { emoji: "✈️", label: "비행기" }], correctAnswer: 0, explanation: "민수가 빨래를 깨끗이 하러 이동했어요." },
+          { question: "빨래를 하러 어디로 이동했나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🌳", label: "공원" }, { emoji: "🧺", label: "빨래방" }, { emoji: "🏦", label: "은행" }], correctAnswer: 1, explanation: "세탁기와 건조기가 있는 빨래방으로 갔어요." },
+          { question: "세탁기 안에 옷과 함께 무엇을 넣었나요?", wh: "무엇을", whType: "what", symbol: "🧼", options: [{ emoji: "🧃", label: "음료수" }, { emoji: "👟", label: "신발" }, { emoji: "🧼", label: "세제" }], correctAnswer: 2, explanation: "때를 깨끗하게 지워주는 세제를 넣었어요." },
+          { question: "왜 세탁기를 돌렸나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "👕", label: "옷에 땀과 먼지가 묻어서" }, { emoji: "🍕", label: "배가 고파서" }, { emoji: "❄️", label: "날씨가 추워서" }], correctAnswer: 0, explanation: "입었던 옷이 더러워져서 깨끗하게 빨기 위해 돌렸어요." },
+          { question: "세탁기를 어떻게 작동시켰나요?", wh: "어떻게", whType: "how", symbol: "🪙", options: [{ emoji: "🪙", label: "동전을 넣고 시작 버튼을 눌렀어요" }, { emoji: "🔨", label: "망치로 두드렸어요" }, { emoji: "📣", label: "고함을 질렀어요" }], correctAnswer: 0, explanation: "동전을 알맞게 넣고 시작 버튼을 눌러 작동시켰어요." }
+        ]
+      },
+      {
+        id: "bank",
+        title: "은행 / ATM",
+        icon: "🏦",
+        desc: "용돈을 찾기 위해 은행 ATM 기계에 카드를 넣고 현금을 인출하는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "💵", keyword: "현금 필요", text: "지갑에 현금이 부족해 은행에 가기로 마음먹었어요." },
+          { stepIndex: 1, emoji: "🏦", keyword: "은행 방문", text: "가까운 은행의 자동화 기기 코너로 들어갔어요." },
+          { stepIndex: 2, emoji: "💳", keyword: "카드 투입", text: "ATM 화면에서 '출금'을 누르고 은행 카드를 넣었어요." },
+          { stepIndex: 3, emoji: "🔢", keyword: "비밀번호 입력", text: "비밀번호를 조심스럽게 누르고 금액을 선택했어요." },
+          { stepIndex: 4, emoji: "👛", keyword: "현금 수령", text: "기계에서 나온 현금과 카드를 지갑에 잘 챙겨 넣었어요." }
+        ],
+        quizzes: [
+          { question: "누가 은행에 현금을 찾으러 갔나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🐘", label: "코끼리" }, { emoji: "🤖", label: "로봇" }], correctAnswer: 0, explanation: "민수가 필요한 돈을 찾으러 은행에 갔어요." },
+          { question: "현금을 인출하러 어디로 들어갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "💈", label: "미용실" }, { emoji: "🏦", label: "은행 ATM 코너" }, { emoji: "🛝", label: "놀이터" }], correctAnswer: 1, explanation: "현금을 인출할 수 있는 은행 코너로 갔어요." },
+          { question: "기계에 무엇을 넣었나요?", wh: "무엇을", whType: "what", symbol: "💳", options: [{ emoji: "🍬", label: "사탕" }, { emoji: "💳", label: "은행 카드" }, { emoji: "✏️", label: "연필" }], correctAnswer: 1, explanation: "본인의 은행 출금 카드를 투입구에 넣었어요." },
+          { question: "왜 은행에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "💵", label: "지갑에 쓸 현금이 부족해서" }, { emoji: "🎬", label: "영화를 보려고" }, { emoji: "🍲", label: "라면을 끓이려고" }], correctAnswer: 0, explanation: "지갑에 현금이 필요해서 인출하러 갔어요." },
+          { question: "현금을 찾기 위해 어떻게 했나요?", wh: "어떻게", whType: "how", symbol: "🔢", options: [{ emoji: "🔢", label: "비밀번호를 누르고 금액을 골랐어요" }, { emoji: "🏃", label: "제자리뛰기를 했어요" }, { emoji: "🎤", label: "노래를 불렀어요" }], correctAnswer: 0, explanation: "안전하게 비밀번호를 입력하고 출금 금액을 선택했어요." }
+        ]
+      },
+      {
+        id: "community",
+        title: "주민센터 / 행정복지센터",
+        icon: "🏛️",
+        desc: "신분증을 챙겨 주민센터에서 번호표를 뽑고 서류를 발급받는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🪪", keyword: "서류 필요", text: "일자리 신청에 필요한 증명 서류가 필요했어요." },
+          { stepIndex: 1, emoji: "🏛️", keyword: "주민센터 방문", text: "신분증을 챙겨 동네 주민센터 안으로 들어갔어요." },
+          { stepIndex: 2, emoji: "🎟️", keyword: "번호표 뽑기", text: "순번 발행기에서 번호표를 뽑고 순서를 기다렸어요." },
+          { stepIndex: 3, emoji: "👩‍💼", keyword: "담당자 신청", text: "내 번호가 띵동 울리자 창구 직원에게 서류를 신청했어요." },
+          { stepIndex: 4, emoji: "📄", keyword: "서류 수령", text: "도장이 찍힌 깨끗한 서류를 받아 가방에 잘 넣었어요." }
+        ],
+        quizzes: [
+          { question: "누구에게 필요한 서류를 신청했나요?", wh: "누구에게", whType: "who", symbol: "👤", options: [{ emoji: "👩‍💼", label: "주민센터 창구 직원" }, { emoji: "👨‍🍳", label: "요리사" }, { emoji: "🦁", label: "사자" }], correctAnswer: 0, explanation: "주민센터 창구 직원에게 서류를 신청했어요." },
+          { question: "서류를 발급받으러 어디로 갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🏊", label: "수영장" }, { emoji: "🏛️", label: "주민센터" }, { emoji: "☕", label: "카페" }], correctAnswer: 1, explanation: "각종 공공 서류를 떼어주는 주민센터로 갔어요." },
+          { question: "입구 기계에서 무엇을 뽑았나요?", wh: "무엇을", whType: "what", symbol: "🎟️", options: [{ emoji: "🍬", label: "껌 종이" }, { emoji: "🎟️", label: "순번 번호표" }, { emoji: "🎈", label: "풍선" }], correctAnswer: 1, explanation: "순서를 지키기 위해 번호표를 먼저 뽑았어요." },
+          { question: "왜 주민센터에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "🪪", label: "필요한 증명 서류를 떼려고" }, { emoji: "🍔", label: "햄버거를 먹으려고" }, { emoji: "⚽", label: "공놀이를 하려고" }], correctAnswer: 0, explanation: "제출해야 할 서류를 발급받기 위해 방문했어요." },
+          { question: "창구로 어떻게 이동했나요?", wh: "어떻게", whType: "how", symbol: "🔔", options: [{ emoji: "🔔", label: "내 번호가 띵동 울려서 이동했어요" }, { emoji: "😭", label: "울면서 뛰쳐나갔어요" }, { emoji: "💤", label: "바닥에 누웠어요" }], correctAnswer: 0, explanation: "창구 전광판에 내 번호표 번호가 떴을 때 이동했어요." }
+        ]
+      },
+      {
+        id: "salon",
+        title: "미용실 / 이발소",
+        icon: "💇‍♂️",
+        desc: "길어진 머리를 단정하게 자르고 거울을 보며 기분 좋게 나오는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🪞", keyword: "자란 머리카락", text: "거울을 보니 머리카락이 눈을 찔러 자를 때가 되었어요." },
+          { stepIndex: 1, emoji: "💈", keyword: "미용실 입장", text: "예약한 시간에 맞추어 단골 미용실로 들어갔어요." },
+          { stepIndex: 2, emoji: "🪑", keyword: "가운 입기", text: "의자에 편안하게 앉아 옷에 머리카락이 묻지 않게 가운을 둘렀어요." },
+          { stepIndex: 3, emoji: "✂️", keyword: "가위질하기", text: "미용사 선생님이 가위로 머리를 단정하고 깔끔하게 잘라주셨어요." },
+          { stepIndex: 4, emoji: "✨", keyword: "깔끔한 모습", text: "거울 속 멋져진 모습을 보며 미소를 짓고 감사 인사를 건넸어요." }
+        ],
+        quizzes: [
+          { question: "누가 머리를 멋지게 잘라주었나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "✂️", label: "미용사 선생님" }, { emoji: "🚒", label: "소방관" }, { emoji: "🐯", label: "호랑이" }], correctAnswer: 0, explanation: "전문 가위를 가진 미용사 선생님이 잘라주셨어요." },
+          { question: "머리를 자르러 어디로 갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "💈", label: "미용실" }, { emoji: "📮", label: "우체국" }, { emoji: "🌳", label: "공원" }], correctAnswer: 0, explanation: "머리를 손질하는 미용실로 갔어요." },
+          { question: "의자에 앉아 옷에 무엇을 둘렀나요?", wh: "무엇을", whType: "what", symbol: "🪑", options: [{ emoji: "🪑", label: "미용 가운" }, { emoji: "🧤", label: "장갑" }, { emoji: "🤿", label: "물안경" }], correctAnswer: 0, explanation: "머리카락이 옷에 떨어지지 않도록 가운을 둘렀어요." },
+          { question: "왜 미용실에 가기로 했나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "🪞", label: "머리카락이 길어져서 눈을 찔러서" }, { emoji: "🍿", label: "팝콘을 먹으려고" }, { emoji: "😴", label: "잠을 푹 자려고" }], correctAnswer: 0, explanation: "머리가 길어져 답답해서 단정하게 자르러 갔어요." },
+          { question: "머리를 어떻게 다듬었나요?", wh: "어떻게", whType: "how", symbol: "✂️", options: [{ emoji: "✂️", label: "가위로 단정하고 깔끔하게 잘랐어요" }, { emoji: "🎨", label: "색연필로 칠했어요" }, { emoji: "🪓", label: "망치로 두드렸어요" }], correctAnswer: 0, explanation: "가위로 꼼꼼하게 잘라 다듬었어요." }
+        ]
+      },
+      {
+        id: "library",
+        title: "도서관 / 서점",
+        icon: "📚",
+        desc: "읽고 싶은 책을 골라 대출 카드로 빌려서 가방에 챙겨 오는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "📖", keyword: "책 읽고 싶음", text: "주말에 재미있게 읽을 그림책을 빌리고 싶었어요." },
+          { stepIndex: 1, emoji: "🏛️", keyword: "도서관 입장", text: "조용하고 시원한 동네 도서관 안으로 조용히 들어갔어요." },
+          { stepIndex: 2, emoji: "🔍", keyword: "책장 검색", text: "책장을 천천히 둘러보며 읽고 싶던 책을 골라 꺼냈어요." },
+          { stepIndex: 3, emoji: "💳", keyword: "대출 카드 접수", text: "안내 데스크로 가서 도서관 대출증 카드를 보여주고 빌렸어요." },
+          { stepIndex: 4, emoji: "🎒", keyword: "가방에 보관", text: "대출 확인증과 책을 가방에 잘 넣고 기쁘게 집으로 돌아왔어요." }
+        ],
+        quizzes: [
+          { question: "누가 도서관에서 책을 빌렸나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🚀", label: "우주선" }, { emoji: "🐱", label: "고양이" }], correctAnswer: 0, explanation: "책을 읽고 싶었던 민수가 빌렸어요." },
+          { question: "책을 빌리러 어디로 갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🏛️", label: "도서관" }, { emoji: "🏊", label: "수영장" }, { emoji: "💈", label: "미용실" }], correctAnswer: 0, explanation: "많은 책들이 있는 도서관으로 갔어요." },
+          { question: "책을 빌릴 때 데스크에 무엇을 보여주었나요?", wh: "무엇을", whType: "what", symbol: "💳", options: [{ emoji: "💳", label: "도서관 대출증 카드" }, { emoji: "👟", label: "신발" }, { emoji: "🍎", label: "사과" }], correctAnswer: 0, explanation: "도서 대출을 확인하는 카드를 보여주었어요." },
+          { question: "왜 도서관에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "📖", label: "재미있는 책을 빌려 읽으려고" }, { emoji: "🍜", label: "라면을 사려고" }, { emoji: "⚽", label: "축구를 하려고" }], correctAnswer: 0, explanation: "읽고 싶었던 책을 대출하기 위해서 갔어요." },
+          { question: "도서관 안에서는 어떻게 다녀야 하나요?", wh: "어떻게", whType: "how", symbol: "🤫", options: [{ emoji: "🤫", label: "조용하고 천천히 걸어 다녔어요" }, { emoji: "📣", label: "큰 소리로 소리를 질렀어요" }, { emoji: "🏃", label: "전력 질주로 뛰었어요" }], correctAnswer: 0, explanation: "다른 사람을 배려해 조용히 발걸음을 옮겼어요." }
+        ]
+      },
+      {
+        id: "park",
+        title: "공원 / 산책로",
+        icon: "🌳",
+        desc: "운동화를 신고 공원 산책로를 걷다가 벤치에 앉아 물을 마시는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🌤️", keyword: "맑은 날씨", text: "햇살이 따뜻하고 바람이 시원한 기분 좋은 날이었어요." },
+          { stepIndex: 1, emoji: "👟", keyword: "운동화 착용", text: "민수는 편한 운동화를 챙겨 신고 밖으로 나갔어요." },
+          { stepIndex: 2, emoji: "🌳", keyword: "공원 도착", text: "가까운 공원으로 걸어가 푸른 나무와 꽃을 보았어요." },
+          { stepIndex: 3, emoji: "🚶‍♂️", keyword: "산책로 걷기", text: "산책로를 따라 천천히 걸으며 깊게 숨을 쉬었어요." },
+          { stepIndex: 4, emoji: "🪑", keyword: "벤치 휴식", text: "벤치에 앉아 시원한 물을 마시며 편안하게 휴식을 즐겼어요." }
+        ],
+        quizzes: [
+          { question: "누가 공원으로 산책을 나갔나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🚂", label: "기차" }, { emoji: "🐻", label: "곰 인형" }], correctAnswer: 0, explanation: "민수가 건강하게 산책을 나섰어요." },
+          { question: "어디서 나무와 꽃을 보며 걸었나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🌳", label: "공원 산책로" }, { emoji: "🚇", label: "지하철 안" }, { emoji: "🛗", label: "엘리베이터" }], correctAnswer: 0, explanation: "나무와 꽃이 가득한 공원에서 걸었어요." },
+          { question: "발에 무엇을 챙겨 신었나요?", wh: "무엇을", whType: "what", symbol: "👟", options: [{ emoji: "👟", label: "편한 운동화" }, { emoji: "🧤", label: "털장갑" }, { emoji: "🤿", label: "물안경" }], correctAnswer: 0, explanation: "산책하기 좋은 편안한 운동화를 신었어요." },
+          { question: "어떤 날씨에 산책을 나갔나요?", wh: "언제", whType: "when", symbol: "🌤️", options: [{ emoji: "🌤️", label: "햇살이 따뜻하고 시원한 날" }, { emoji: "⛈️", label: "태풍이 몰아치는 날" }, { emoji: "❄️", label: "눈보라가 치는 날" }], correctAnswer: 0, explanation: "햇살이 따스하고 걷기 좋은 날이었어요." },
+          { question: "공원 벤치에서 어떻게 쉬었나요?", wh: "어떻게", whType: "how", symbol: "🪑", options: [{ emoji: "🪑", label: "시원한 물을 마시며 쉬었어요" }, { emoji: "😡", label: "화를 내며 뛰었어요" }, { emoji: "📢", label: "고함을 질렀어요" }], correctAnswer: 0, explanation: "벤치에 앉아 물을 마시며 편안하게 휴식했어요." }
+        ]
+      },
+      {
+        id: "cinema",
+        title: "영화관",
+        icon: "🎬",
+        desc: "키오스크에서 영화표를 발권하고 팝콘을 사서 상영관으로 들어가는 일상",
+        steps: [
+          { stepIndex: 0, emoji: "🎟️", keyword: "영화 예매", text: "보고 싶던 영화를 보러 가기 위해 영화관으로 향했어요." },
+          { stepIndex: 1, emoji: "🏢", keyword: "영화관 도착", text: "높은 건물 안에 있는 커다란 영화관 로비에 도착했어요." },
+          { stepIndex: 2, emoji: "🤖", keyword: "티켓 발권", text: "무인 키오스크 화면을 눌러 종이 영화표를 출력했어요." },
+          { stepIndex: 3, emoji: "🍿", keyword: "팝콘 구매", text: "매점으로 가서 고소한 팝콘과 시원한 음료수를 샀어요." },
+          { stepIndex: 4, emoji: "🎬", keyword: "상영관 입장", text: "표에 적힌 상영관 번호와 자리를 찾아 들어가 앉았어요." }
+        ],
+        quizzes: [
+          { question: "누가 영화를 보러 영화관에 갔나요?", wh: "누가", whType: "who", symbol: "👤", options: [{ emoji: "🧑", label: "민수" }, { emoji: "🐯", label: "호랑이" }, { emoji: "🚗", label: "자동차" }], correctAnswer: 0, explanation: "민수가 재미있는 영화를 보러 갔어요." },
+          { question: "어디로 영화를 보러 들어갔나요?", wh: "어디서", whType: "where", symbol: "📍", options: [{ emoji: "🎬", label: "영화관 상영관" }, { emoji: "🏊", label: "수영장" }, { emoji: "💈", label: "미용실" }], correctAnswer: 0, explanation: "큰 스크린이 있는 영화관 상영관으로 들어갔어요." },
+          { question: "매점에서 무엇을 샀나요?", wh: "무엇을", whType: "what", symbol: "🍿", options: [{ emoji: "🍿", label: "고소한 팝콘과 음료수" }, { emoji: "👟", label: "새 신발" }, { emoji: "✏️", label: "연필과 공책" }], correctAnswer: 0, explanation: "영화를 보며 먹을 팝콘과 음료를 샀어요." },
+          { question: "왜 영화관에 갔나요?", wh: "왜", whType: "why", symbol: "❓", options: [{ emoji: "🎬", label: "재미있는 영화를 관람하려고" }, { emoji: "😴", label: "이불 덮고 자려고" }, { emoji: "⚽", label: "축구 연습하려고" }], correctAnswer: 0, explanation: "보고 싶었던 영화를 즐기기 위해 방문했어요." },
+          { question: "종이 영화표를 어떻게 뽑았나요?", wh: "어떻게", whType: "how", symbol: "🤖", options: [{ emoji: "🤖", label: "무인 키오스크 화면을 눌러 출력했어요" }, { emoji: "🔨", label: "기계를 망치로 쳤어요" }, { emoji: "😭", label: "바닥에 주저앉았어요" }], correctAnswer: 0, explanation: "키오스크 화면을 차근차근 터치해서 발권했어요." }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       2. Web Speech API (TTS) 관리자 (숫자 호칭 제외 & rate: 0.9 표준 발음)
+       ========================================================================== */
+    class SpeechController {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.isSupported = 'speechSynthesis' in window;
+        this.isSpeaking = false;
+        this.currentCallback = null;
+      }
+
+      // 텍스트에서 숫자, 번호, 목차 기호 완벽 제거
+      cleanText(raw) {
+        if (!raw) return "";
+        return raw
+          .replace(/[①②③④⑤]/g, " ")
+          .replace(/\bQ\d+\.?\s*/gi, " ")
+          .replace(/\b\d+번\b|\b\d+\.\s*|\(\d+\)\s*|\[\d+\]\s*/g, " ")
+          .replace(/\b(첫째|둘째|셋째|넷째|다섯째)\b[\s,]*/g, " ")
+          .replace(/[#@$%^&*_+~=<>{}|[\]\\]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      stop() {
+        if (this.isSupported) {
+          this.synth.cancel();
+        }
+        this.isSpeaking = false;
+        if (this.currentCallback) {
+          const cb = this.currentCallback;
+          this.currentCallback = null;
+          cb(false);
+        }
+      }
+
+      speak(text, onEnd) {
+        if (!this.isSupported) {
+          app.showToast("이 기기에서는 음성 읽기가 지원되지 않습니다.");
+          if (onEnd) onEnd(false);
+          return;
+        }
+
+        this.synth.cancel(); // 겹침 방지
+
+        const cleaned = this.cleanText(text);
+        if (!cleaned) {
+          if (onEnd) onEnd(true);
+          return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleaned);
+        utterance.lang = "ko-KR";
+        utterance.rate = 0.9; // 편안한 한국어 표준 속도
+        utterance.pitch = 1.0;
+
+        this.isSpeaking = true;
+        this.currentCallback = onEnd;
+
+        utterance.onend = () => {
+          this.isSpeaking = false;
+          if (this.currentCallback) {
+            const cb = this.currentCallback;
+            this.currentCallback = null;
+            cb(true);
+          }
+        };
+
+        utterance.onerror = () => {
+          this.isSpeaking = false;
+          if (this.currentCallback) {
+            const cb = this.currentCallback;
+            this.currentCallback = null;
+            cb(false);
+          }
+        };
+
+        this.synth.speak(utterance);
+      }
+
+      // 연속된 문장들을 부드럽게 이어 읽어주는 시퀀스
+      speakSequence(items, onFinished) {
+        if (!items || items.length === 0) {
+          if (onFinished) onFinished();
+          return;
+        }
+
+        let idx = 0;
+        const playNext = () => {
+          if (idx >= items.length) {
+            if (onFinished) onFinished();
+            return;
+          }
+          const itemText = items[idx];
+          idx++;
+          this.speak(itemText, (completed) => {
+            if (!completed) return;
+            setTimeout(playNext, 380);
+          });
+        };
+
+        playNext();
+      }
+    }
+
+    /* ==========================================================================
+       3. 메인 앱 애플리케이션 클래스 (드래그 앤 드롭 & 의문사 퀴즈)
+       ========================================================================== */
+    class AdultLifeApp {
+      constructor() {
+        this.speech = new SpeechController();
+        this.locations = ADULT_LOCATIONS_DATA;
+
+        this.currentLoc = null;
+        this.shuffledCards = [];
+        this.slotPlacements = [null, null, null, null, null]; // 5개 슬롯
+        this.currentQuizIndex = 0;
+        this.quizAnswered = false;
+
+        // 드래그 중인 카드 데이터 보관
+        this.draggedCardData = null;
+
+        this.initDOM();
+        this.renderHomeLocations();
+      }
+
+      initDOM() {
+        this.screens = {
+          home: document.getElementById("screenHome"),
+          step1: document.getElementById("screenStep1"),
+          step2: document.getElementById("screenStep2"),
+          result: document.getElementById("screenResult")
+        };
+      }
+
+      switchScreen(screenName) {
+        this.stopAllSpeech();
+        Object.values(this.screens).forEach(s => s.classList.remove("active"));
+        if (this.screens[screenName]) {
+          this.screens[screenName].classList.add("active");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+
+      goHome() {
+        this.stopAllSpeech();
+        this.switchScreen("home");
+      }
+
+      stopAllSpeech() {
+        this.speech.stop();
+        this.resetAudioUI();
+      }
+
+      resetAudioUI() {
+        const btnFull = document.getElementById("btnFullStoryVoice");
+        const btnFullIcon = document.getElementById("btnFullStoryIcon");
+        const btnFullText = document.getElementById("btnFullStoryText");
+        if (btnFull) btnFull.classList.remove("speaking");
+        if (btnFullIcon) btnFullIcon.textContent = "🎧";
+        if (btnFullText) btnFullText.textContent = "전체 이야기 들어보기";
+
+        const btnQuiz = document.getElementById("btnQuizVoice");
+        const btnQuizIcon = document.getElementById("btnQuizVoiceIcon");
+        const btnQuizText = document.getElementById("btnQuizVoiceText");
+        if (btnQuiz) btnQuiz.classList.remove("speaking");
+        if (btnQuizIcon) btnQuizIcon.textContent = "🔊";
+        if (btnQuizText) btnQuizText.textContent = "질문 듣기";
+      }
+
+      showToast(msg, icon = "✨") {
+        const toast = document.getElementById("toastPopup");
+        document.getElementById("toastIcon").textContent = icon;
+        document.getElementById("toastText").textContent = msg;
+        toast.classList.add("show");
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2200);
+      }
+
+      /* ------------------------------------------------------------------------
+         화면 1: 12가지 성인 일상 장소 타일 렌더링
+         ------------------------------------------------------------------------ */
+      renderHomeLocations() {
+        const grid = document.getElementById("locationsGrid");
+        grid.innerHTML = "";
+
+        this.locations.forEach((loc, idx) => {
+          const card = document.createElement("div");
+          card.className = "location-tile-card";
+          card.setAttribute("role", "listitem");
+          card.setAttribute("tabindex", "0");
+          card.innerHTML = `
+            <div class="tile-symbol" aria-hidden="true">${loc.icon}</div>
+            <h3 class="tile-name">${loc.title}</h3>
+            <p class="tile-desc">${loc.desc}</p>
+            <span class="tile-badge-tag">5단계 순서 & 5대 의문사</span>
+          `;
+
+          const startFn = () => {
+            this.stopAllSpeech();
+            this.startLocation(loc.id);
+          };
+          card.addEventListener("click", startFn);
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              startFn();
+            }
+          });
+
+          grid.appendChild(card);
+        });
+      }
+
+      startRandomLocation() {
+        const rand = Math.floor(Math.random() * this.locations.length);
+        this.startLocation(this.locations[rand].id);
+      }
+
+      /* ------------------------------------------------------------------------
+         화면 2: 1단계 마우스 드래그 앤 드롭 5단계 사건 순서 맞추기
+         ------------------------------------------------------------------------ */
+      startLocation(locId) {
+        this.stopAllSpeech();
+        this.currentLoc = this.locations.find(l => l.id === locId);
+        if (!this.currentLoc) return;
+
+        document.getElementById("step1StoryTitle").innerHTML = `<span>${this.currentLoc.icon}</span> <span>${this.currentLoc.title}</span>`;
+        document.getElementById("step2StoryTitle").innerHTML = `<span>${this.currentLoc.icon}</span> <span>${this.currentLoc.title}</span>`;
+        document.getElementById("recapAlbumTitle").innerHTML = `<span>${this.currentLoc.icon}</span> <span>${this.currentLoc.title} - 완성된 일상 이야기</span>`;
+
+        // 5장의 카드 무작위 셔플 (항상 섞인 순서 보장)
+        let indices = [0, 1, 2, 3, 4];
+        do {
+          indices.sort(() => Math.random() - 0.5);
+        } while (indices.every((val, idx) => val === idx));
+
+        this.shuffledCards = indices.map(idx => this.currentLoc.steps[idx]);
+        this.slotPlacements = [null, null, null, null, null];
+
+        // 1단계 버튼 초기화
+        const bar = document.getElementById("step1ActionsBar");
+        bar.innerHTML = `
+          <button type="button" class="btn btn-secondary" onclick="app.resetStep1()" id="btnResetStep1">
+            <span>🔄</span>
+            <span>처음부터 다시 놓기</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-xl" onclick="app.checkStep1Order()" id="btnCheckStep1" disabled>
+            <span>✨</span>
+            <span>순서 확인하기</span>
+          </button>
+        `;
+
+        this.renderDropSlots();
+        this.renderPoolCards();
+        this.hideFeedback();
+
+        this.switchScreen("step1");
+      }
+
+      /* 상단 전체 이야기 들어보기 (숫자 호칭 없이 자연스럽게) */
+      toggleFullStorySpeech() {
+        const btn = document.getElementById("btnFullStoryVoice");
+        const btnIcon = document.getElementById("btnFullStoryIcon");
+        const btnText = document.getElementById("btnFullStoryText");
+
+        if (this.speech.isSpeaking) {
+          this.stopAllSpeech();
+          this.showToast("이야기 재생을 멈추었습니다.", "⏹️");
+          return;
+        }
+
+        btn.classList.add("speaking");
+        btnIcon.textContent = "⏹️";
+        btnText.textContent = "정지";
+        this.showToast("전체 이야기를 순서대로 들려드립니다.", "🎧");
+
+        // "이야기 제목은 OO입니다. [문장1] [문장2] ..." (숫자 호칭 없이 자연스럽게)
+        const sequence = [
+          `이야기 제목은 ${this.currentLoc.title}입니다. 전체 이야기를 들려드릴게요.`,
+          ...this.currentLoc.steps.map(s => s.text)
+        ];
+
+        this.speech.speakSequence(sequence, () => {
+          this.resetAudioUI();
+          this.showToast("이야기를 모두 들었습니다.", "✨");
+        });
+      }
+
+      speakFullStorySequence() {
+        this.toggleFullStorySpeech();
+      }
+
+      /* 5개 드롭 타겟 슬롯 렌더링 & 드래그 앤 드롭 리스너 바인딩 */
+      renderDropSlots() {
+        const container = document.getElementById("dropSlotsGrid");
+        container.innerHTML = "";
+
+        const ordinalLabels = ["1번째 일", "2번째 일", "3번째 일", "4번째 일", "5번째 일"];
+
+        for (let i = 0; i < 5; i++) {
+          const stepData = this.slotPlacements[i];
+          const slot = document.createElement("div");
+          slot.className = `drop-slot ${stepData ? 'has-card' : ''}`;
+          slot.id = `slot-${i}`;
+          slot.dataset.slotIndex = i;
+          slot.setAttribute("role", "region");
+          slot.setAttribute("aria-label", `${ordinalLabels[i]} 슬롯`);
+
+          if (stepData) {
+            slot.innerHTML = `
+              <span class="slot-label-num">${i + 1}번 완료</span>
+              <div class="slot-content-body">
+                <div class="slot-emoji">${stepData.emoji}</div>
+                <div class="slot-keyword">${stepData.keyword}</div>
+                <div class="slot-text">${stepData.text}</div>
+              </div>
+            `;
+            // 채워진 슬롯을 클릭하면 다시 빼기
+            slot.addEventListener("click", () => this.handleSlotClick(i));
+          } else {
+            slot.innerHTML = `
+              <span class="slot-label-num">${i + 1}번</span>
+              <div class="slot-empty-body">
+                <div class="slot-empty-icon">📥</div>
+                <div class="slot-empty-text">${ordinalLabels[i]}을<br>여기에 끌어다 놓으세요</div>
+              </div>
+            `;
+          }
+
+          // HTML5 Drag and Drop 드롭존 이벤트 바인딩
+          slot.addEventListener("dragover", (e) => {
+            e.preventDefault(); // 드롭 허용을 위해 필수
+            e.dataTransfer.dropEffect = "move";
+            slot.classList.add("drag-over");
+          });
+
+          slot.addEventListener("dragleave", () => {
+            slot.classList.remove("drag-over");
+          });
+
+          slot.addEventListener("drop", (e) => {
+            e.preventDefault();
+            slot.classList.remove("drag-over");
+            const rawData = e.dataTransfer.getData("application/json");
+            if (rawData) {
+              const cardData = JSON.parse(rawData);
+              this.placeCardInSlot(cardData, i);
+            }
+          });
+
+          container.appendChild(slot);
+        }
+
+        // 5개 슬롯이 모두 채워졌을 때 확인 버튼 활성화
+        const allFilled = this.slotPlacements.every(s => s !== null);
+        const checkBtn = document.getElementById("btnCheckStep1");
+        if (checkBtn) {
+          checkBtn.disabled = !allFilled;
+        }
+      }
+
+      /* 하단 마우스 드래그 가능한 카드 렌더링 */
+      renderPoolCards() {
+        const pool = document.getElementById("cardsPoolGrid");
+        pool.innerHTML = "";
+
+        this.shuffledCards.forEach((stepData) => {
+          const isPlaced = this.slotPlacements.some(placed => placed && placed.stepIndex === stepData.stepIndex);
+
+          const card = document.createElement("div");
+          card.className = `draggable-card ${isPlaced ? 'placed' : ''}`;
+          card.setAttribute("role", "listitem");
+          card.setAttribute("draggable", isPlaced ? "false" : "true");
+          card.setAttribute("aria-label", `${stepData.keyword} 그림 카드`);
+
+          card.innerHTML = `
+            <div class="card-drag-emoji">${stepData.emoji}</div>
+            <span class="card-drag-keyword">${stepData.keyword}</span>
+            <div class="card-drag-text">${stepData.text}</div>
+            <span class="card-hint-drag">🖐️ 마우스로 잡고 위로 끌기</span>
+          `;
+
+          if (!isPlaced) {
+            // 마우스 드래그 시작 이벤트
+            card.addEventListener("dragstart", (e) => {
+              this.draggedCardData = stepData;
+              e.dataTransfer.setData("application/json", JSON.stringify(stepData));
+              e.dataTransfer.effectAllowed = "move";
+              card.classList.add("dragging");
+            });
+
+            // 드래그 종료 이벤트
+            card.addEventListener("dragend", () => {
+              card.classList.remove("dragging");
+              this.draggedCardData = null;
+            });
+
+            // 클릭으로도 배치할 수 있는 직관적 하이브리드 지원
+            card.addEventListener("click", () => {
+              const emptySlotIdx = this.slotPlacements.findIndex(s => s === null);
+              if (emptySlotIdx !== -1) {
+                this.placeCardInSlot(stepData, emptySlotIdx);
+              } else {
+                this.showToast("5개 자리가 다 찼습니다! 위 슬롯을 눌러 빼거나 확인해보세요.", "💡");
+              }
+            });
+          }
+
+          pool.appendChild(card);
+        });
+      }
+
+      placeCardInSlot(cardData, targetSlotIdx) {
+        // 이미 다른 슬롯에 배치되어 있던 카드인지 확인하여 이전 슬롯 해제
+        const prevSlotIdx = this.slotPlacements.findIndex(s => s && s.stepIndex === cardData.stepIndex);
+        if (prevSlotIdx !== -1) {
+          this.slotPlacements[prevSlotIdx] = null;
+        }
+
+        // 대상 슬롯에 카드 배치
+        this.slotPlacements[targetSlotIdx] = cardData;
+
+        // 문장 낭독 (숫자 호칭 없이 자연스러운 문장으로)
+        this.speech.speak(cardData.text);
+
+        this.renderDropSlots();
+        this.renderPoolCards();
+        this.hideFeedback();
+      }
+
+      handleSlotClick(slotIdx) {
+        if (this.slotPlacements[slotIdx] !== null) {
+          this.speech.stop();
+          this.slotPlacements[slotIdx] = null;
+          this.renderDropSlots();
+          this.renderPoolCards();
+          this.hideFeedback();
+        }
+      }
+
+      resetStep1() {
+        this.stopAllSpeech();
+        this.slotPlacements = [null, null, null, null, null];
+        this.renderDropSlots();
+        this.renderPoolCards();
+        this.hideFeedback();
+        this.showToast("카드를 처음부터 다시 놓습니다.", "🔄");
+      }
+
+      checkStep1Order() {
+        const isAllFilled = this.slotPlacements.every(s => s !== null);
+        if (!isAllFilled) return;
+
+        const isCorrect = this.slotPlacements.every((step, idx) => step.stepIndex === idx);
+
+        const feedback = document.getElementById("step1Feedback");
+        const icon = document.getElementById("step1FeedbackIcon");
+        const title = document.getElementById("step1FeedbackTitle");
+        const desc = document.getElementById("step1FeedbackDesc");
+
+        feedback.classList.remove("error", "success");
+
+        if (isCorrect) {
+          feedback.classList.add("show", "success");
+          icon.textContent = "🎉";
+          title.textContent = "완벽해요! 마우스로 순서를 정말 잘 맞추셨어요!";
+          desc.textContent = "원인, 준비, 행동, 결과까지 5단계 흐름이 정확합니다. 이제 5대 의문사 질문을 풀어볼까요?";
+          
+          this.speech.speak("완벽해요! 순서를 정말 잘 맞추셨어요. 이제 의문사 질문을 풀어보아요.");
+
+          const bar = document.getElementById("step1ActionsBar");
+          bar.innerHTML = `
+            <button type="button" class="btn btn-primary btn-xl" onclick="app.startStep2()" style="max-width: 480px;">
+              <span>다음 단계: 5대 의문사 질문 풀기</span>
+              <span>👉</span>
+            </button>
+          `;
+        } else {
+          feedback.classList.add("show", "error");
+          icon.textContent = "💡";
+          title.textContent = "어떤 일이 먼저 일어났을까요?";
+          desc.textContent = "원인과 행동을 차근차근 생각해 봐요. 슬롯에 넣은 카드를 누르면 빼서 다른 곳으로 다시 끌어다 놓을 수 있어요.";
+
+          this.speech.speak("어떤 일이 먼저 일어났을까요? 그림 카드를 다시 차근차근 끌어다 놓아보세요.");
+        }
+      }
+
+      hideFeedback() {
+        const feedback = document.getElementById("step1Feedback");
+        feedback.classList.remove("show", "error", "success");
+      }
+
+      /* ------------------------------------------------------------------------
+         화면 3: 2단계 5대 의문사 퀴즈 (상황당 5문제)
+         ------------------------------------------------------------------------ */
+      startStep2() {
+        this.stopAllSpeech();
+        this.currentQuizIndex = 0;
+        this.quizAnswered = false;
+
+        // 상단 가로 롤링 5컷 만화 갤러리 렌더링
+        const track = document.getElementById("galleryTrack5");
+        track.innerHTML = "";
+        this.currentLoc.steps.forEach((step, idx) => {
+          const cut = document.createElement("div");
+          cut.className = "mini-cut";
+          cut.innerHTML = `
+            <span class="cut-badge">${idx + 1}단계</span>
+            <div class="cut-symbol">${step.emoji}</div>
+            <div class="cut-name">${step.keyword}</div>
+          `;
+          track.appendChild(cut);
+        });
+
+        this.renderQuizItem();
+        this.switchScreen("step2");
+      }
+
+      renderQuizItem() {
+        const quiz = this.currentLoc.quizzes[this.currentQuizIndex];
+        this.quizAnswered = false;
+
+        // 인디케이터
+        const progress = document.getElementById("step2ProgressBadge");
+        progress.textContent = `질문 ${this.currentQuizIndex + 1} / 5`;
+        progress.className = `wh-badge ${quiz.whType}`;
+
+        // 의문사 태그
+        const whBadge = document.getElementById("whBadge");
+        whBadge.textContent = `${quiz.symbol} ${quiz.wh}`;
+        whBadge.className = `wh-badge ${quiz.whType}`;
+
+        // 질문 심볼 & 텍스트
+        document.getElementById("quizSymbolIcon").textContent = quiz.symbol;
+        document.getElementById("quizQuestionText").textContent = quiz.question;
+
+        // 피드백 박스 닫기
+        const feedbackBox = document.getElementById("quizFeedbackBox");
+        feedbackBox.classList.remove("show", "correct", "wrong");
+
+        // 3개 선택지 렌더링
+        const optionsList = document.getElementById("optionsList");
+        optionsList.innerHTML = "";
+
+        quiz.options.forEach((opt, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn";
+          btn.id = `optBtn-${optIdx}`;
+          btn.setAttribute("role", "radio");
+          btn.setAttribute("aria-checked", "false");
+          btn.innerHTML = `
+            <div class="opt-left">
+              <span class="opt-emoji">${opt.emoji}</span>
+              <span>${opt.label}</span>
+            </div>
+            <div style="font-size: 32px;" id="optStatus-${optIdx}"></div>
+          `;
+
+          btn.addEventListener("click", () => this.handleOptionClick(optIdx));
+          optionsList.appendChild(btn);
+        });
+
+        // 질문 자동 안내 (숫자 호칭 없이 자연스럽게 질문 낭독)
+        setTimeout(() => {
+          this.speakCurrentQuizQuestion();
+        }, 300);
+      }
+
+      speakCurrentQuizQuestion() {
+        const quiz = this.currentLoc.quizzes[this.currentQuizIndex];
+        if (!quiz) return;
+
+        this.stopAllSpeech();
+
+        const btn = document.getElementById("btnQuizVoice");
+        const btnIcon = document.getElementById("btnQuizVoiceIcon");
+        const btnText = document.getElementById("btnQuizVoiceText");
+        if (btn) btn.classList.add("speaking");
+        if (btnIcon) btnIcon.textContent = "⏹️";
+        if (btnText) btnText.textContent = "정지";
+
+        // 질문 문장 -> 선택지 보기들을 숫자 없이 자연스럽게 읽어줌
+        const sequence = [
+          quiz.question,
+          ...quiz.options.map(o => o.label)
+        ];
+
+        this.speech.speakSequence(sequence, () => {
+          this.resetAudioUI();
+        });
+      }
+
+      handleOptionClick(selectedIndex) {
+        if (this.quizAnswered) return;
+
+        const quiz = this.currentLoc.quizzes[this.currentQuizIndex];
+        const selectedBtn = document.getElementById(`optBtn-${selectedIndex}`);
+        const statusIcon = document.getElementById(`optStatus-${selectedIndex}`);
+        const feedbackBox = document.getElementById("quizFeedbackBox");
+        const feedbackIcon = document.getElementById("quizFeedbackIcon");
+        const feedbackTitle = document.getElementById("quizFeedbackTitle");
+        const feedbackSub = document.getElementById("quizFeedbackSub");
+        const btnNext = document.getElementById("btnNextQuiz");
+
+        if (selectedIndex === quiz.correctAnswer) {
+          this.stopAllSpeech();
+          this.quizAnswered = true;
+
+          selectedBtn.classList.add("correct");
+          selectedBtn.setAttribute("aria-checked", "true");
+          statusIcon.textContent = "✅";
+
+          // 다른 버튼 비활성화
+          const allButtons = document.querySelectorAll(".option-btn");
+          allButtons.forEach(btn => {
+            if (btn !== selectedBtn) btn.disabled = true;
+          });
+
+          feedbackBox.classList.remove("wrong");
+          feedbackBox.classList.add("show", "correct");
+          feedbackIcon.textContent = "👏";
+          feedbackTitle.textContent = "정답입니다! 아주 잘 찾았어요!";
+          feedbackSub.textContent = quiz.explanation;
+
+          const isLastQuiz = this.currentQuizIndex === this.currentLoc.quizzes.length - 1;
+          btnNext.innerHTML = isLastQuiz ? `<span>최종 이야기 보러 가기 🏆</span>` : `<span>다음 질문 풀기 👉</span>`;
+
+          this.speech.speak(`정답입니다! ${quiz.explanation}`);
+        } else {
+          this.stopAllSpeech();
+          selectedBtn.classList.add("wrong");
+          statusIcon.textContent = "❌";
+
+          feedbackBox.classList.remove("correct");
+          feedbackBox.classList.add("show", "wrong");
+          feedbackIcon.textContent = "💡";
+          feedbackTitle.textContent = "다시 골라보아요!";
+          feedbackSub.textContent = "위의 5단계 순서를 다시 생각해보고 다른 보기를 눌러보세요.";
+
+          this.speech.speak("다시 골라보아요! 다른 것은 무엇이 있을까요?");
+
+          setTimeout(() => {
+            selectedBtn.classList.remove("wrong");
+            statusIcon.textContent = "";
+          }, 1200);
+        }
+      }
+
+      handleNextQuiz() {
+        this.stopAllSpeech();
+        if (this.currentQuizIndex < this.currentLoc.quizzes.length - 1) {
+          this.currentQuizIndex++;
+          this.renderQuizItem();
+        } else {
+          this.showResult();
+        }
+      }
+
+      /* ------------------------------------------------------------------------
+         화면 4: 결과 화면 (완성된 동화책 앨범)
+         ------------------------------------------------------------------------ */
+      showResult() {
+        this.stopAllSpeech();
+
+        const grid = document.getElementById("albumGrid5");
+        grid.innerHTML = "";
+
+        this.currentLoc.steps.forEach((step, idx) => {
+          const cut = document.createElement("div");
+          cut.className = "album-cut-card";
+          cut.innerHTML = `
+            <span class="album-cut-badge">${idx + 1}단계</span>
+            <div class="album-cut-emoji">${step.emoji}</div>
+            <div class="album-cut-keyword">${step.keyword}</div>
+            <div class="album-cut-text">${step.text}</div>
+          `;
+          grid.appendChild(cut);
+        });
+
+        this.switchScreen("result");
+        this.speech.speak("축하합니다! 오늘의 일상 탐구를 멋지게 모두 마쳤습니다.");
+      }
+
+      replayCurrentLocation() {
+        this.stopAllSpeech();
+        this.startLocation(this.currentLoc.id);
+      }
+    }
+
+    // 전역 애플리케이션 인스턴스 초기화
+    let app;
+    window.addEventListener("DOMContentLoaded", () => {
+      app = new AdultLifeApp();
+    });
+  </script>
+</body>
+</html>
